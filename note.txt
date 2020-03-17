@@ -1,0 +1,112 @@
+The first step to using Gulp is to require it in the gulpfile.
+syntax : var gulp = require('gulp');
+
+We can now begin to write a gulp task with this gulp variable. The basic syntax of a gulp task is:
+gulp.task('task-name', function() {
+  // Stuff here
+});
+
+Here's what a real task may look like:
+gulp.task('task-name', function () {
+  return gulp.src('source-files') // Get source files with gulp.src
+    .pipe(aGulpPlugin()) // Sends it through a gulp plugin
+    .pipe(gulp.dest('destination')) // Outputs the file in the destination folder
+});
+
+gulp.src tells the Gulp task what files to use for the task, 
+while gulp.dest tells Gulp where to output the files once the task is completed.
+
+We can compile Sass to CSS in Gulp with the help of a plugin called gulp-sass.
+$ npm install gulp-sass --save-dev
+We'd also want to use the --save-dev flag to ensure that gulp-sass gets added to devDependencies in package.json
+
+the syntax to create a sass task to convert scss file into css file
+gulp.task('sass',function()
+{
+    return gulp.src('app/scss/**/*.scss')// **/*.scss => it code will convert all of scss file into css file
+        .pipe(sass())// Converts Sass to CSS with gulp-sass
+        .pipe(gulp.dest('app/css'))
+})
+
+gulp.watch('app/scss/**/*.scss', gulp.series('sass')); // it will automatic update css file 
+whenever the same scss file change and save.
+
++++ > Live-reloading with Browser Sync : $ npm install browser-sync --save-dev
+
+We need to create a browserSync task to enable Gulp to spin up a server using Browser Sync. 
+Since we're running a server, we need to let Browser Sync know where the root of the server should be
+
+brownserSync.init({
+        server : {
+            baseDir : 'app'
+        }
+    })
+=>  change our sass task slightly
+ so Browser Sync can inject new CSS styles (update the CSS) into the browser whenever the sass task is ran.
+.pipe(brownserSync.reload({
+            stream : true
+        }))
+
+#Optimizing CSS and JavaScript files
+$ npm install gulp-useref --save-dev // it get many js file into one file in dist
+var useref = require('gulp-useref');
+npm install gulp-uglify --save-dev // it minify js file
+
+npm install gulp-uglify --save-dev
+var uglify = require('gulp-uglify');//use the gulp-uglify plugin to help with minifying JavaScript files
+npm install gulp-if --save-dev
+var gulpIf = require('gulp-if');// gulp-if to ensure that we only attempt to minify JavaScript files.
+
+$ npm install gulp-cssnano
+var cssnano = require('gulp-cssnano');//minify the concatenated CSS file
+
+npm install gulp-imagemin --save-dev
+var imagemin = require('gulp-imagemin')//minify png, jpg, gif and even svg with the help of gulp-imagemin;
+
+gulp.task('images', function(){
+  return gulp.src('app/images/**/*.+(png|jpg|gif|svg)')
+  .pipe(imagemin())
+  .pipe(gulp.dest('dist/images'))
+});
+
+$ npm install gulp-cache --save-dev
+//Optimizing images however, is an extremely slow process that you'd not want to repeat unless necessary. To do so, we can use the gulp-cache plugin.
+var cache = require('gulp-cache');
+
+gulp.task('images', function(){
+  return gulp.src('app/images/**/*.+(png|jpg|jpeg|gif|svg)')
+  // Caching images that ran through imagemin
+  .pipe(cache(imagemin({
+      interlaced: true
+    })))
+  .pipe(gulp.dest('dist/images'))
+});
+
+#Copying Fonts to Dist
+gulp.task('fonts', function() {
+  return gulp.src('app/fonts/**/*')
+  .pipe(gulp.dest('dist/fonts'))
+})  
+
+#Cleaning up generated files automatically
+
+Since we're generating files automatically, 
+we'll want to make sure that files that are no longer used don't remain anywhere without us knowing.
+
+npm install del --save-dev
+var del = require('del');
+gulp.task('clean:dist', function() {
+  return del.sync('dist');
+})
+
+#Combining Gulp tasks
+
+$ npm install run-sequence --save-dev//ensure that cleans get completed before the rest of the tasks
+var runSequence = require('run-sequence');
+
+gulp.task('build', function (callback) {
+  runSequence('clean:dist', 
+    ['sass', 'useref', 'images', 'fonts'],
+    callback
+  )
+})
