@@ -1,0 +1,2 @@
+*,:after,:before{box-sizing:inherit}html{box-sizing:border-box;font-size:100%}body{background-color:#cecece;color:#000;padding:2rem;font-family:Roboto,"Sans-serif"}main{display:flex;justify-content:space-around}main section{flex:70%;padding-left:3rem}main section h1{color:rgba(255,0,0,.5)}main section h2{margin-bottom:2rem}main aside{flex:30%;padding:1rem;margin-right:2rem;background-color:#f5f5f5;border:1px solid rgba(0,0,0,.3);border-radius:5px}
+/*# sourceMappingURL=style.css.map */

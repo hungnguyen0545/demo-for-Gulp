@@ -1,30 +1,26 @@
-var gulp = require('gulp');// have to require to using Gulp
+var gulp = require('gulp'); // have to require to using Gulp
 var sass = require('gulp-sass') // require gulp-sass from node-modules
-autoprefixer = require('gulp-autoprefixer');// add vendor free css.
+var autoprefixer = require('gulp-autoprefixer');// add vendor free css.
 var browserSync = require('browser-sync').create();// require this code to use brownser sync
 var useRef = require('gulp-useref');
 var uglify = require('gulp-uglify');//use the gulp-uglify plugin to help with minifying JavaScript files
 var gulpIf = require('gulp-if');// gulp-if to ensure that we only attempt to minify JavaScript files.
 var cssnano = require('gulp-cssnano');//minify the concatenated CSS file
 var runSequence = require('run-sequence');
+var newer = require('gulp-newer');
+var imagemin = require('gulp-imagemin')
+
 
 // demo create gulp task
 
-gulp.task('hello',function(done)
+function demoTask(cb)
 {
-    console.log('Hello Hung!');
-    done();
-})
+    console.log('hello');
+    cb();
+}
+exports.default = demoTask
 
-gulp.task('sass',function()
-{
-    return gulp.src('app/scss/**/*.scss')
-        .pipe(sass())// Converts Sass to CSS with gulp-sass
-        .pipe(gulp.dest('app/css')) // the destination folder where css will be stored 
-        .pipe(browserSync.stream())
-})
-
-gulp.task('sass', function () {   
+function convertSasstoCss()  {
     return gulp.src('src/scss/**/*.scss')
            .pipe(sass())
            .pipe(autoprefixer())
@@ -32,15 +28,17 @@ gulp.task('sass', function () {
              stream:true
             }))
            .pipe(gulp.dest('src/css'))
- });
+ };
+ exports.sass = convertSasstoCss
 //browser Sync task
-gulp.task('browserSync',function(){
+function browserSyncTask(){
     browserSync.init({
         server : {
             baseDir : 'app'
         }
     })  
-})
+}
+
 // // gulp watch syntax
 // gulp.task('watch', gulp.series('browserSync','sass'),function()
 // {
@@ -49,27 +47,32 @@ gulp.task('browserSync',function(){
 //    gulp.watch('app/js/**/*.js').on('change', browserSync.reload); 
 // })
 
-//Step 1: creating browser reload function
-//Browser Reload Function
-gulp.task('reload', function(done){
+
+function reload(done){
     browserSync.reload();
     done();
-})
-//Step 2: altering watch function to reload the browser
-gulp.task('watch', function() {
-    gulp.watch('src/scss/**/*.scss', gulp.series('sass','reload'));
-})
-// /Final step: create a live-server function.
-gulp.task('live-server', gulp.series('browserSync', 'watch'));
-// gulp useref task
-gulp.task('useref',function(){
-    return gulp.src('app/*.html')
-                .pipe(useRef())
-                .pipe(gulpIf('*.js', uglify()))
-                .pipe(gulp.dest('dist'))
-})  
+};
 
-gulp.task('fonts', function() {
-    return gulp.src('app/fonts/**/*')
-    .pipe(gulp.dest('dist/fonts'))
-  })  
+function autoUpdate(cb)
+{
+    gulp.watch('src/scss/**/*.scss',gulp.series(convertSasstoCss,reload));
+    cb();
+}
+
+exports.default = gulp.series(
+    browserSyncTask,
+    autoUpdate,
+);
+    
+
+// /Final step: create a live-server function.
+//gulp.task('live-server', gulp.series(browserSync, watch));
+// gulp useref task
+// gulp.task('useref',function(){
+//     return gulp.src('app/*.html')
+//                 .pipe(useRef())
+//                 .pipe(gulpIf('*.js', uglify()))
+//                 .pipe(gulp.dest('dist'))
+// })  
+ 
+

@@ -110,3 +110,15 @@ gulp.task('build', function (callback) {
     callback
   )
 })
+
+
+
+
+////Creating tasks
+++ Exporting
+Tasks can be considered public or private.
+
+Public tasks are exported from your gulpfile, which allows them to be run by the gulp command.
+Private tasks are made to be used internally, usually used as part of series() or parallel() composition.
+->To have your tasks execute in order, use the series() method.
+->For tasks to run at maximum concurrency, combine them with the parallel() method.
